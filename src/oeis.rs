@@ -5,7 +5,7 @@ use crate::sequence::Sequence;
 /// An OEIS sequence is a sequence that is in the OEIS database.
 /// We query the database by getting a json from a url like this:
 ///    `https://oeis.org/search?q=1,2,4,8&fmt=json`
-pub struct OeisSeq {
+pub(crate) struct OeisSeq {
     data: Vec<i128>,
 }
 
@@ -21,12 +21,10 @@ impl Sequence for OeisSeq {
         );
 
         // get the json
-        println!("getting json");
         let response = reqwest::blocking::get(url).unwrap();
         let body = response.text().unwrap();
 
         // parse json
-        println!("parsing json");
         let json: Value = serde_json::from_str(&body).unwrap();
 
         // we expect an array of sequences
@@ -34,22 +32,16 @@ impl Sequence for OeisSeq {
             return None;
         };
 
-        println!("got array");
-
         // we want the first sequence
         let first = arr.first().unwrap();
         let Value::Object(obj) = first else {
             return None;
         };
 
-        println!("got object");
-
         // we want the data field of that sequence
         let Value::String(name) = obj.get("data")? else {
             return None;
         };
-
-        println!("got data");
 
         // this is a string that contains a comma separated list of numbers
         let data = name
@@ -59,8 +51,6 @@ impl Sequence for OeisSeq {
                     .expect(&format!("unable to parse {:?} as integer", x))
             })
             .collect();
-
-        println!("got data");
 
         Some(OeisSeq { data })
     }
