@@ -37,7 +37,7 @@ impl Parser {
                 let int_str = lit.to_string();
                 let num: i128 = int_str
                     .parse()
-                    .expect(&format!("unable to parse {:?} as integer", int_str));
+                    .unwrap_or_else(|_| panic!("unable to parse {:?} as integer", int_str));
                 Some(num * parity)
             }
             _ => None,
@@ -74,21 +74,16 @@ pub(crate) fn parse_int_seq(token_stream: &TokenStream) -> Option<(Vec<i128>, i1
     let mut parser = Parser::new(token_stream.clone());
     let mut seq = Vec::new();
 
-    loop {
-        // munch integer literal
-        match parser.munch_integer() {
-            Some(x) => seq.push(x),
-            None => break,
-        }
-
-        // munch comma
+    // repeatedly munch integer + comma (`a,'+)
+    while let Some(x) = parser.munch_integer() {
+        seq.push(x);
         if parser.munch_punct(',').is_none() {
             parser.step_back();
             seq.pop();
             break;
         }
     }
-    // munch range
+    // munch range (`b..c` | `b..=c`)
     let range = parser.munch_range()?;
 
     seq.push(range.start);

@@ -37,10 +37,8 @@ mod sequence;
 /// ```
 #[proc_macro]
 pub fn int_seq(token_stream: TokenStream) -> TokenStream {
-    let (seq, end) = parse_int_seq(&token_stream).expect(&format!(
-        "could not parse token stream. token stream: {:x?}",
-        token_stream
-    ));
+    let (seq, end) = parse_int_seq(&token_stream).unwrap_or_else(|| panic!("could not parse token stream. token stream: {:x?}",
+        token_stream));
     let inferred_seq = sequence::infer_sequence(&seq).expect("could not infer sequence");
     let generated_seq = inferred_seq.generate(&seq, end);
     format!("&{:?}", generated_seq.as_slice()).parse().unwrap()

@@ -14,5 +14,5 @@ pub(crate) fn infer_sequence(seq: &[i128]) -> Option<Box<dyn Sequence>> {
     if let Some(seq) = OeisSeq::infer(seq) {
         return Some(Box::new(seq));
     }
-    return None;
+    None
 }

@@ -9,8 +9,8 @@ pub struct AffineSeq {
 impl Sequence for AffineSeq {
     fn infer(seq: &[i128]) -> Option<Self> {
         match seq.len() {
-            0 => return None,
-            1 => return Some(Self { a: 1, b: seq[0] }),
+            0 => None,
+            1 => Some(Self { a: 1, b: seq[0] }),
             _ => {
                 let b = seq[0];
                 let a = seq[1] - b;

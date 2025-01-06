@@ -48,7 +48,7 @@ impl Sequence for OeisSeq {
             .split(',')
             .map(|x| {
                 x.parse()
-                    .expect(&format!("unable to parse {:?} as integer", x))
+                    .unwrap_or_else(|_| panic!("unable to parse {:?} as integer", x))
             })
             .collect();
 
@@ -57,12 +57,9 @@ impl Sequence for OeisSeq {
 
     fn generate(&self, seq: &[i128], end: i128) -> Vec<i128> {
         let start_idx = (0..self.data.len())
-            .into_iter()
             .find(|idx| self.data[*idx..*idx + seq.len()] == *seq)
-            .expect(&format!(
-                "Sequence not found in data. Sequence: {:?}. Data: {:?}",
-                seq, self.data
-            ));
+            .unwrap_or_else(|| panic!("Sequence not found in data. Sequence: {:?}. Data: {:?}",
+                seq, self.data));
 
         let mut seq = Vec::new();
         let mut terminated = false;
