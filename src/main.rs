@@ -1,5 +1,6 @@
 mod affine;
 use affine::Affine;
+use int_seq::my_list;
 
 use core::ops::Range;
 
@@ -12,4 +13,7 @@ fn main() {
     let affine = Affine::infer_from(&[101, 106, 111]).unwrap();
     println!("{:?}", affine.generate(101, 996));
     println!("{:?}", int_seq(101, 106, 111..996));
+
+    let x = my_list!();
+    println!("{:?}", x);
 }
