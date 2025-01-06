@@ -73,9 +73,9 @@ pub fn int_seq(token_stream: TokenStream) -> TokenStream {
     let mut seq = Vec::new();
 
     // parse sequences of the form:
-    //  - `e..g`
-    //  - `a,b,c,d,e..g`
-    //  - `a,b,c,d,e..=g`
+    //  - `1..128`
+    //  - `1,2,4,8,16..128`
+    //  - `1,2,4,8,16..=128`
     loop {
         // munch integer literal
         match parser.munch_integer() {
@@ -96,8 +96,60 @@ pub fn int_seq(token_stream: TokenStream) -> TokenStream {
     seq.push(range.start);
     let end = range.end;
 
-    let affine = Affine::infer_from(&seq).unwrap();
-    let seq = affine.generate(seq[0], end);
+    // if let Some(affine) = Affine::infer_from(&seq) {
+    //     let seq = affine.generate(seq[0], end);
+    //     return format!("{:?}", seq).parse().unwrap();
+    // };
 
-    format!("{:?}", seq).parse().unwrap()
+    // consult oeis for more complicated cases :D
+    // we get a json from a url like this: `https://oeis.org/search?q=1,2,4,8&fmt=json`
+
+    // construct url
+    let url = format!(
+        "https://oeis.org/search?q={:?}&fmt=json",
+        seq.iter()
+            .map(|x| x.to_string())
+            .collect::<Vec<_>>()
+            .join(",")
+    );
+
+    println!("url is {:?}", url);
+
+    // get json
+    let response = reqwest::blocking::get(url).unwrap();
+    println!("response is {:?}", response);
+    let body = response.text().unwrap();
+    println!("response body is {:?}", body);
+
+    // parse json
+    let json: serde_json::Value = serde_json::from_str(&body).unwrap();
+    println!("--------------------------------");
+    println!("--------------------------------");
+    println!("--------------------------------");
+    println!("--------------------------------");
+    println!("json is {:?}", json);
+
+    match json {
+        serde_json::Value::Array(arr) => {
+            for item in arr {
+                println!("------");
+                // println!("item is {:?}", item);
+                match item {
+                    serde_json::Value::Object(obj) => {
+                        println!("obj keys are {:?}", obj.keys().collect::<Vec<_>>());
+                        match &obj["data"] {
+                            serde_json::Value::String(name) => {
+                                println!("name is {:?}", name);
+                            }
+                            _ => panic!("expected string"),
+                        }
+                    }
+                    _ => panic!("expected object"),
+                }
+            }
+        }
+        _ => panic!("expected array"),
+    }
+
+    todo!()
 }

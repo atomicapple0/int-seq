@@ -1,3 +1,4 @@
+/// An affine sequence is a sequence of the form `a*i + b`
 pub struct Affine {
     a: i32,
     b: i32,
@@ -5,17 +6,20 @@ pub struct Affine {
 
 impl Affine {
     pub fn infer_from(seq: &[i32]) -> Option<Self> {
-        if seq.len() < 2 {
-            return None;
-        }
-        let b = seq[0];
-        let a = seq[1] - b;
-        for (i, x) in seq.iter().enumerate() {
-            if *x != a * (i as i32) + b {
-                return None;
+        match seq.len() {
+            0 => return None,
+            1 => return Some(Self { a: 1, b: seq[0] }),
+            _ => {
+                let b = seq[0];
+                let a = seq[1] - b;
+                for (i, x) in seq.iter().enumerate() {
+                    if *x != a * (i as i32) + b {
+                        return None;
+                    }
+                }
+                Some(Self { a, b })
             }
         }
-        Some(Self { a, b })
     }
 
     pub fn generate(&self, start: i32, end: i32) -> Vec<i32> {
