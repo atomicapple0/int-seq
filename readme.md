@@ -8,6 +8,7 @@ an array of integers at compile time. We do not support lazy iterators yet
 since some integer sequences do not have a simple closed form formula.
 
 We currently use two heuristics for inferring integer sequences:
+
 - Affine sequences are of the form `a*i + b`
 - OEIS sequences are in the [On-Line Encyclopedia of Integer Sequences (OEIS)](https://oeis.org/) database. We use `reqwest` to perform HTTP requests within a procedural macro to query the database. By doing this at compile time, we can avoid runtime overheads
 
