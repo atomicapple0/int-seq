@@ -25,17 +25,17 @@ mod sequence;
 /// use int_seq::int_seq;
 ///
 /// // affine sequence
-/// assert_eq!(int_seq!(57, 64, 71, 78, 85..100), &[57, 64, 71, 78, 85, 92, 99]);
+/// assert_eq!(int_seq!(57, 64, 71, 78, 85..100), [57, 64, 71, 78, 85, 92, 99]);
 /// // inclusive upper bound
-/// assert_eq!(int_seq!(3, 6..=12), &[3, 6, 9, 12]);
+/// assert_eq!(int_seq!(3, 6..=12), [3, 6, 9, 12]);
 /// // basic range
-/// assert_eq!(int_seq!(1..5), &[1, 2, 3, 4]);
+/// assert_eq!(int_seq!(1..5), [1, 2, 3, 4]);
 /// // powers of 2
-/// assert_eq!(int_seq!(1, 2, 4, 8, 16..=1024), &[1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]);
+/// assert_eq!(int_seq!(1, 2, 4, 8, 16..=1024), [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]);
 /// // fibonacci sequence
-/// assert_eq!(int_seq!(0, 1, 1, 2, 3, 5, 8, 13..100), &[0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]);
+/// assert_eq!(int_seq!(0, 1, 1, 2, 3, 5, 8, 13..100), [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]);
 /// // McKay-Thompson series of class 32e for the Monster group (OEIS A082303).
-/// assert_eq!(int_seq!(-4, -9, 4, 10..26), &[-4, -9, 4, 10, -4, -12, 6, 15, -7, -17, 7, 19, -8, -22, 10])
+/// assert_eq!(int_seq!(-4, -9, 4, 10..26), [-4, -9, 4, 10, -4, -12, 6, 15, -7, -17, 7, 19, -8, -22, 10])
 /// ```
 #[proc_macro]
 pub fn int_seq(token_stream: TokenStream) -> TokenStream {
@@ -47,5 +47,10 @@ pub fn int_seq(token_stream: TokenStream) -> TokenStream {
     });
     let inferred_seq = sequence::infer_sequence(&seq).expect("could not infer sequence");
     let generated_seq = inferred_seq.generate(&seq, end);
-    format!("&{:?}", generated_seq.as_slice()).parse().unwrap()
+    let comma_seperated_ints = generated_seq
+        .iter()
+        .map(|x| x.to_string())
+        .collect::<Vec<String>>()
+        .join(",");
+    format!("[{}]", comma_seperated_ints).parse().unwrap()
 }
