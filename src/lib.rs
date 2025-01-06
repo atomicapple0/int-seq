@@ -1,10 +1,15 @@
 extern crate proc_macro;
 use std::ops::Range;
 
+use oeis::OeisSeq;
 use proc_macro::{TokenStream, TokenTree};
 
 mod affine;
-use affine::Affine;
+mod oeis;
+use affine::AffineSeq;
+use sequence::Sequence;
+
+mod sequence;
 
 struct Parser {
     tokens: Vec<TokenTree>,
@@ -31,11 +36,16 @@ impl Parser {
         self.idx -= 1;
     }
 
-    fn munch_integer(&mut self) -> Option<i32> {
+    fn munch_integer(&mut self) -> Option<i128> {
         match self.peek() {
             Some(TokenTree::Literal(lit)) => {
                 self.step();
-                Some(lit.to_string().parse().unwrap())
+                let int_str = lit.to_string();
+                Some(
+                    int_str
+                        .parse()
+                        .expect(&format!("unable to parse {:?} as integer", int_str)),
+                )
             }
             _ => None,
         }
@@ -51,7 +61,7 @@ impl Parser {
         }
     }
 
-    fn munch_range(&mut self) -> Option<Range<i32>> {
+    fn munch_range(&mut self) -> Option<Range<i128>> {
         let start = self.munch_integer()?;
         println!("start is {:?}", start);
         self.munch_punct('.')?;
@@ -96,60 +106,20 @@ pub fn int_seq(token_stream: TokenStream) -> TokenStream {
     seq.push(range.start);
     let end = range.end;
 
-    // if let Some(affine) = Affine::infer_from(&seq) {
-    //     let seq = affine.generate(seq[0], end);
-    //     return format!("{:?}", seq).parse().unwrap();
-    // };
+    println!("inferring");
 
-    // consult oeis for more complicated cases :D
-    // we get a json from a url like this: `https://oeis.org/search?q=1,2,4,8&fmt=json`
+    let inferred_seq: Box<dyn Sequence> = match AffineSeq::infer(&seq) {
+        Some(seq) => Box::new(seq),
+        None => match OeisSeq::infer(&seq) {
+            Some(seq) => Box::new(seq),
+            None => panic!("could not infer sequence"),
+        },
+    };
 
-    // construct url
-    let url = format!(
-        "https://oeis.org/search?q={:?}&fmt=json",
-        seq.iter()
-            .map(|x| x.to_string())
-            .collect::<Vec<_>>()
-            .join(",")
-    );
+    println!("inferred_seq is bruh");
 
-    println!("url is {:?}", url);
+    let generated_seq = inferred_seq.generate(&seq, end);
+    println!("generated_seq is {:?}", generated_seq);
 
-    // get json
-    let response = reqwest::blocking::get(url).unwrap();
-    println!("response is {:?}", response);
-    let body = response.text().unwrap();
-    println!("response body is {:?}", body);
-
-    // parse json
-    let json: serde_json::Value = serde_json::from_str(&body).unwrap();
-    println!("--------------------------------");
-    println!("--------------------------------");
-    println!("--------------------------------");
-    println!("--------------------------------");
-    println!("json is {:?}", json);
-
-    match json {
-        serde_json::Value::Array(arr) => {
-            for item in arr {
-                println!("------");
-                // println!("item is {:?}", item);
-                match item {
-                    serde_json::Value::Object(obj) => {
-                        println!("obj keys are {:?}", obj.keys().collect::<Vec<_>>());
-                        match &obj["data"] {
-                            serde_json::Value::String(name) => {
-                                println!("name is {:?}", name);
-                            }
-                            _ => panic!("expected string"),
-                        }
-                    }
-                    _ => panic!("expected object"),
-                }
-            }
-        }
-        _ => panic!("expected array"),
-    }
-
-    todo!()
+    format!("{:?}", generated_seq).parse().unwrap()
 }

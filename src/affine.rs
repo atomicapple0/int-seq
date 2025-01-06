@@ -1,11 +1,13 @@
+use crate::sequence::Sequence;
+
 /// An affine sequence is a sequence of the form `a*i + b`
-pub struct Affine {
-    a: i32,
-    b: i32,
+pub struct AffineSeq {
+    a: i128,
+    b: i128,
 }
 
-impl Affine {
-    pub fn infer_from(seq: &[i32]) -> Option<Self> {
+impl Sequence for AffineSeq {
+    fn infer(seq: &[i128]) -> Option<Self> {
         match seq.len() {
             0 => return None,
             1 => return Some(Self { a: 1, b: seq[0] }),
@@ -13,7 +15,7 @@ impl Affine {
                 let b = seq[0];
                 let a = seq[1] - b;
                 for (i, x) in seq.iter().enumerate() {
-                    if *x != a * (i as i32) + b {
+                    if *x != a * (i as i128) + b {
                         return None;
                     }
                 }
@@ -22,7 +24,8 @@ impl Affine {
         }
     }
 
-    pub fn generate(&self, start: i32, end: i32) -> Vec<i32> {
+    fn generate(&self, seq: &[i128], end: i128) -> Vec<i128> {
+        let start = seq[0];
         assert!(start <= end);
         assert!((start - self.b) % self.a == 0);
         let mut seq = Vec::new();
