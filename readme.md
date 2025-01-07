@@ -1,5 +1,7 @@
 # int-seq
 
+[![GHA Status]][GitHub Actions] [![Latest Version]][crates.io] [![Documentation]][docs.rs] ![License]
+
 A Rust macro for generating integer sequences. This is inspired by [Raku lang's sequence operator (`...`)](https://doc.perl6.org/language/operators#infix_...).
 
 Here are some examples of how the `...` operator works in Raku taken from a [blog post](https://buttondown.com/hillelwayne/archive/raku-a-language-for-gremlins/).
@@ -61,3 +63,11 @@ assert_eq!(int_seq!(-4, -9, 4, 10..26), [-4, -9, 4, 10, -4, -12, 6, 15, -7, -17,
 ## Limitations
 
 Does not yet support decreasing sequences. e.g. `int_seq!(10, 9, 8..=0)` does not work yet.
+
+[GitHub Actions]: https://github.com/atomicapple0/int-seq/actions
+[GHA Status]: https://github.com/atomicapple0/int-seq/actions/workflows/rust.yml/badge.svg
+[crates.io]: https://crates.io/crates/int-seq
+[Latest Version]: https://img.shields.io/crates/v/int-seq.svg
+[Documentation]: https://docs.rs/int-seq/badge.svg
+[docs.rs]: https://docs.rs/int-seq
+[License]: https://img.shields.io/crates/l/int-seq.svg
