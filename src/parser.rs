@@ -78,8 +78,13 @@ pub(crate) fn parse_int_seq(token_stream: &TokenStream) -> Option<(Vec<i128>, i1
     while let Some(x) = parser.munch_integer() {
         seq.push(x);
         if parser.munch_punct(',').is_none() {
+            let x = seq.pop().unwrap();
             parser.step_back();
-            seq.pop();
+            // also step back for the negative sign
+            // this is very hacky. probably should have a separate lexing step
+            if x < 0 {
+                parser.step_back();
+            }
             break;
         }
     }
