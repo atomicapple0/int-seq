@@ -8,10 +8,10 @@ mod sequence;
 use parser::parse_int_seq;
 use proc_macro::TokenStream;
 
-// /// Run doctests from the README.md file
-// #[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/README.md"))]
-// #[cfg(doctest)]
-// struct ReadmeDoctests;
+/// Run doctests from the readme.md file
+#[doc = include_str!("../readme.md")]
+#[cfg(doctest)]
+struct ReadmeDoctests;
 
 /// Given a sequence of integers that includes an range ellipsis, we deduce the
 /// integers that are omitted using various heuristics. This macro will produce

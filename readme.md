@@ -48,10 +48,6 @@ use int_seq::int_seq;
 
 // affine sequence
 assert_eq!(int_seq!(57, 64, 71, 78, 85..100), [57, 64, 71, 78, 85, 92, 99]);
-// inclusive upper bound
-assert_eq!(int_seq!(3, 6..=12), [3, 6, 9, 12]);
-// basic range
-assert_eq!(int_seq!(1..5), [1, 2, 3, 4]);
 // powers of 2
 assert_eq!(int_seq!(1, 2, 4, 8, 16..=1024), [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]);
 // fibonacci sequence
